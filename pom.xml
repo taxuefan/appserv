@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.hs</groupId>
-    <artifactId>AppServ</artifactId>
+    <artifactId>appserv</artifactId>
     <packaging>war</packaging>
     <version>1.0-SNAPSHOT</version>
     <dependencies>
@@ -98,7 +98,7 @@
         </dependency>
     </dependencies>
     <build>        <!-- 指定打包文件名称（可用于除去jar文件版本号） -->
-        <finalName>appServ</finalName>
+        <finalName>appserv</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

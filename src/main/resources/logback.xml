@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="30 seconds" debug="false">
-    <contextName>study</contextName>
+    <contextName>appserv</contextName>
     <property name="log.pattern" value="%black(%contextName-) %red(%d{yyyy-MM-dd HH:mm:ss}) %green([%thread]) %highlight(%-5level) %boldMagenta(%logger{36}) - %gray(%msg%n)" />
     <!--在没有定义${LOG_HOME}系统变量的时候，可以设置此本地变量。提交测试、上线时，要将其注释掉，使用系统变量。-->
     <property name="LOG_HOME" value="d:/logs" />
@@ -10,7 +10,7 @@
     <property name="LOG_HOME" value="/home/application/webapps/logs" />
     -->
     <!-- 应用名称：和统一配置中的项目代码保持一致（小写） -->
-    <property name="APP_NAME" value="appServ"/>
+    <property name="APP_NAME" value="appserv"/>
     <!--日志文件保留天数-->
     <property name="LOG_MAX_HISTORY" value="30"/>
     <!--应用日志文件保存路径-->

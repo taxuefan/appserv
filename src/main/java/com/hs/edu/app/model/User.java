@@ -2,7 +2,6 @@ package com.hs.edu.app.model;
 
 import com.hs.edu.db.annotation.FieldAttr;
 import com.hs.edu.db.annotation.TableAttr;
-import com.sun.tracing.dtrace.ArgsAttributes;
 import lombok.*;
 
 /**
