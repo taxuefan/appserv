@@ -53,10 +53,7 @@ public class DictionaryServiceImp implements DictionaryService {
       return dictDao.getRandomDictinary(type);
     }
 
-    @Override
-    public Result getDictionaryByType(int type) {
-        return null;
-    }
+
     @Override
     public Result addDictionary(Dictionary dic) {
         Result result=new Result();

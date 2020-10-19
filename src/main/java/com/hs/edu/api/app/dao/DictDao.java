@@ -27,7 +27,7 @@ public class DictDao extends BaseDaoSupport<Dictionary> {
     }
     private Result queryRandomByAll(){
         String  sql="SELECT * FROM app_game_dictionary AS t1 JOIN (SELECT ROUND(RAND() * (SELECT MAX(id) FROM app_game_dictionary )) AS id ) AS t2 WHERE t1.id  >= t2.id" +
-                " ORDER BY t1.type_id ASC LIMIT 1";
+                " ORDER BY t1.id ASC LIMIT 1";
         Result result=new Result();
         try {
             List list= this.executeQuery(sql, null, Dictionary.class);

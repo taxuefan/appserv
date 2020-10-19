@@ -33,14 +33,7 @@ public interface DictionaryService {
       * @return com.hs.edu.app.entity.Dictionary
       **/
      Result getRandomDictinary(int type);
-     /**
-      * @Author taxuefan
-      * @Description //TODO
-      * @Date 20:20 2020/10/12
-      * @Param [type]
-      * @return java.util.List
-      **/
-     Result getDictionaryByType(int type);
+ 
      /**
       * @Author taxuefan
       * @Description //ig

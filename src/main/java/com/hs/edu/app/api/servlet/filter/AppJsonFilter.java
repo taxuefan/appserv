@@ -36,14 +36,12 @@ public class AppJsonFilter implements Filter {
         servletRequest.setCharacterEncoding("UTF-8");
         servletResponse.setContentType("application/json; charset=utf-8");
         if(log.isInfoEnabled()){
-            log.info("拦载JSON API接口的访问 url地址为:{}",request.getRequestURL());
+            log.info("拦载JSON API接口的访问 url地址为:{},关联的url：{}",request.getRequestURL(),request.getMethod());
             log.info("request paramInfo:");
             log.info(JSONObject.toJSONString(request.getParameterMap()));
         }
         filterChain.doFilter(servletRequest,servletResponse);
-        if(log.isInfoEnabled()){
 
-        }
     }
     @Override
     public void destroy() {

@@ -1,18 +1,19 @@
 package com.hs.edu.app.wraper;
 
+import com.hs.edu.app.entity.Gamer;
 import lombok.Data;
 
+import java.util.List;
+
 /**
- * @ClassName WinnerWraper
+ * @ClassName GamerMsgWraper
  * @Description TODO
  * @Author taxuefan
- * @Date 2020/10/14 16:08
+ * @Date 2020/10/14 17:10
  * @Version 1.0
  **/
 @Data
 public class WinnerWraper {
-    private String role;//赢家对应的角色
-    private String pingMin;//卧底词
-    private String wodi; //平民词
-    private String seqNo;//游戏号
+    private int gameStatus;
+    private Winner winner;
 }

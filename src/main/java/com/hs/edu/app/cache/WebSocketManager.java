@@ -1,19 +1,17 @@
 package com.hs.edu.app.cache;
 
-import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.hs.edu.app.entity.Gamer;
 import com.hs.edu.app.entity.Room;
-import com.hs.edu.app.entity.Winner;
 import com.hs.edu.app.util.AppUtils;
 import com.hs.edu.app.websocket.MsgType;
 import com.hs.edu.app.websocket.SocketMsg;
 import com.hs.edu.app.websocket.WebSocketServer;
 import com.hs.edu.app.wraper.GamerMsgWraper;
+import com.hs.edu.app.wraper.Winner;
 import com.hs.edu.app.wraper.WinnerWraper;
 import lombok.extern.slf4j.Slf4j;
 
-import java.security.Key;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -227,7 +225,7 @@ public class WebSocketManager {
      * @return void
      **/
     public void sendGameVotePacket(String roomId){
-        log.info("sendGameOverPacket......");
+        log.info("sendGameVotePacket......");
         SocketMsg<WinnerWraper> msg=new SocketMsg();
         msg.setMsgType(MsgType.GAME_OVER);
         WinnerWraper winnerWraper=AppUtils.computeGameResult(roomId);
@@ -238,6 +236,8 @@ public class WebSocketManager {
         }else{
           msg.setData(winnerWraper);
           this.sendMsgToWebSocket(roomId,MsgType.GAME_OVER,msg);
+          Room room=roomCacheManager.get(roomId);
+          room.finishGame();
         }
         lock.unlock();
     }

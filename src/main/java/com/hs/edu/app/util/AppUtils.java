@@ -5,18 +5,16 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.hs.edu.app.cache.RoomCacheManager;
-import com.hs.edu.app.cache.WebSocketManager;
 import com.hs.edu.app.entity.*;
 import com.hs.edu.app.entity.Dictionary;
 import com.hs.edu.app.enums.Role;
 import com.hs.edu.app.websocket.MsgType;
 import com.hs.edu.app.websocket.SocketMsg;
-import com.hs.edu.app.websocket.WebSocketServer;
 import com.hs.edu.app.wraper.GamerMsgWraper;
+import com.hs.edu.app.wraper.Winner;
 import com.hs.edu.app.wraper.WinnerWraper;
+import lombok.extern.slf4j.Slf4j;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import java.sql.Wrapper;
 import java.util.*;
 
 /**
@@ -26,6 +24,7 @@ import java.util.*;
  * @Date 2020/10/13 23:15
  * @Version 1.0
  **/
+@Slf4j
 public class AppUtils {
     private  static Random random = new Random();
     public static String genGameSeqNo() {
@@ -108,20 +107,27 @@ public class AppUtils {
                 leftGamerNum++;
             }
         }
+        Winner winner=new Winner();
         if(leftWodiNum==0){
-            wraper.setRole(Role.PINGMIN.getCode());
-            wraper.setPingMin(room.getGame().getPingmin());
-            wraper.setWodi(room.getGame().getWodi());
+            winner.setRole(Role.PINGMIN.getCode());
+            winner.setPingMin(room.getGame().getPingmin());
+            winner.setWodi(room.getGame().getWodi());
+            wraper.setWinner(winner);
+            wraper.setGameStatus(2);
             return wraper;
         }else if(leftPingMinNum==0){
-            wraper.setRole(Role.WODI.getCode());
-            wraper.setPingMin(room.getGame().getPingmin());
-            wraper.setWodi(room.getGame().getWodi());
+            winner.setRole(Role.WODI.getCode());
+            winner.setPingMin(room.getGame().getPingmin());
+            winner.setWodi(room.getGame().getWodi());
+            wraper.setWinner(winner);
+            wraper.setGameStatus(2);
             return wraper;
         } else if(leftGamerNum==2&&leftWodiNum>0){
-            wraper.setRole(Role.WODI.getCode());
-            wraper.setPingMin(room.getGame().getPingmin());
-            wraper.setWodi(room.getGame().getWodi());
+            winner.setRole(Role.WODI.getCode());
+            winner.setPingMin(room.getGame().getPingmin());
+            winner.setWodi(room.getGame().getWodi());
+            wraper.setWinner(winner);
+            wraper.setGameStatus(2);
             return wraper;
         }else {
             return null;
@@ -167,27 +173,39 @@ public class AppUtils {
      }
      /**
       * @Author taxuefan
-      * @Description //TODO  这块代码可以用略策的设计模式进行设计，
+      * @Description //TODO 用于过滤消息包的，发送的时候，当前的websocket会显示所有信息，其它玩家的
       * @Date 14:23 2020/10/15
       * @Param [roomId, userId, msg]
       * @return com.hs.edu.app.websocket.SocketMsg
       **/
     public static  SocketMsg filterMsgPacket(String userId,SocketMsg msg){
-        Object data=msg.getData();
-        if(!(data instanceof  java.util.List)){
+         Object data=msg.getData();
+        if(!(data instanceof GamerMsgWraper)){
           return msg;
         }
-        List<Gamer> gamers=(List)data;
+        log.info("filter msg packet list....current user:{}",userId);
+        SocketMsg newMsg=new SocketMsg();
+        newMsg.setMsgType(msg.getMsgType());
+        List newUserList=new ArrayList();
+        GamerMsgWraper newWraper=new GamerMsgWraper();
+        List<Gamer> gamers= ((GamerMsgWraper) data).getUsers();
+        newWraper.setGameStatus(((GamerMsgWraper) data).getGameStatus());
         for(Gamer gamer:gamers){
-            if(StrUtil.isEmpty(gamer.getUserId())){
+            Gamer newGamer=ObjectUtil.clone(gamer);
+            newUserList.add(newGamer);
+            if(StrUtil.isEmpty(newGamer.getUserId())){
                 continue;
             }
-            if(!gamer.getUserId().equals(userId)){
-                gamer.setWord("");
-                gamer.setRole(Role.UNKOWN.getCode());
+            if(!newGamer.getUserId().equals(userId)){
+                newGamer.setWord("");
+                if(newMsg.getMsgType()!=MsgType.GAMING) {
+                    newGamer.setRole(Role.UNKOWN.getCode());
+                }
             }
         }
-        return msg;
+        newWraper.setUsers(newUserList);
+        newMsg.setData(newWraper);
+        return newMsg;
     }
     public static void main(String[] args){
         Object[] arr = {1,2,3,4,5,6,7,8};

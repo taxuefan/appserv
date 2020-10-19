@@ -51,12 +51,5 @@ public class EnterRoomServlet extends HttpServlet {
         }
         out.write(jsonData);
     }
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        String roomId=req.getParameter("roomId");
-        String userId=req.getParameter("userId");
-        PrintWriter out = resp.getWriter();
-        Result result=service.exitRoom(roomId,userId);
-        String jsonData = JSONObject.toJSONString(result);
-        out.write(jsonData);
-    }
+
 }

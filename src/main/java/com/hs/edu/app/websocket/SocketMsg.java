@@ -15,8 +15,11 @@ package com.hs.edu.app.websocket;/*
  */
 
 import lombok.Data;
+
+import java.io.Serializable;
+
 @Data
-public class SocketMsg<T> {
+public class SocketMsg<T> implements Cloneable, Serializable {
 	private  T data;
 	private MsgType msgType;
 
