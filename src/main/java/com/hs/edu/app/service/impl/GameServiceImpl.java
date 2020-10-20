@@ -4,18 +4,19 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.hs.edu.api.app.dao.GameLogDao;
+import com.hs.edu.api.app.dao.GameLogDetailDao;
 import com.hs.edu.api.entity.Result;
 import com.hs.edu.api.entity.ResultCode;
 import com.hs.edu.app.cache.RoomCacheManager;
-import com.hs.edu.app.entity.Dictionary;
-import com.hs.edu.app.entity.Gamer;
-import com.hs.edu.app.entity.Room;
+import com.hs.edu.app.entity.*;
 import com.hs.edu.app.service.DictionaryService;
 import com.hs.edu.app.service.GameService;
 import com.hs.edu.app.util.AppUtils;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantLock;
@@ -33,6 +34,8 @@ public class GameServiceImpl implements GameService {
     private RoomCacheManager roomManager= RoomCacheManager.getInstance();//创建房间缓存
     private static ReentrantLock reentrantLock = new ReentrantLock();
     private DictionaryService dictService=new DictionaryServiceImp();
+    private GameLogDao gameLogDao=new GameLogDao();
+    private GameLogDetailDao gameLogDetalDao=new GameLogDetailDao();
     @Override
     public Room getRoom(String roomId) {
         return null;
@@ -137,8 +140,6 @@ public class GameServiceImpl implements GameService {
             result.setMsg(ResultCode.APP_USER_NO_EXIT.getMsg());
             return result;
         }
-
-
         Gamer newGamer= ObjectUtil.clone(gamer);
         result.setCode(ResultCode.SUCCESS.getCode());
         result.setMsg(ResultCode.SUCCESS.getMsg());
@@ -221,6 +222,7 @@ public class GameServiceImpl implements GameService {
             //当前游戏中的卧底，平民词
             room.getGame().setPingmin(dictionary.getPingmin());
             room.getGame().setWodi(dictionary.getWodi());
+            room.getGame().setCreateTime(System.currentTimeMillis());
             Map resultData=new HashMap<String,String>();
             resultData.put("seqNo",seqNo);
             result.setData(resultData);
@@ -341,6 +343,8 @@ public class GameServiceImpl implements GameService {
         }
         return result;
     }
+
+
     /**
      * @Author taxuefan
      * @Description //玩家退出游戏
@@ -382,5 +386,26 @@ public class GameServiceImpl implements GameService {
             reentrantLock.unlock();//解锁
         }
         return result;
+    }
+
+    @Override
+    public int addGameLog(GameLog gameLog) {
+        try {
+           return gameLogDao.add(gameLog);
+        }catch (Exception e){
+          log.error(e.getMessage());
+          return -1;
+        }
+
+    }
+
+    @Override
+    public int addGameDetailLog(GameDetailLog gameDetailLog) {
+        try {
+            return gameLogDetalDao.add(gameDetailLog);
+        }catch (Exception e){
+            log.error(e.getMessage());
+            return -1;
+        }
     }
 }

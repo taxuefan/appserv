@@ -66,7 +66,7 @@ public class WebSocketServer {
 	@OnClose
 	public void onClose() {
 	   log.info("the user exit room,roomId:{},userId:{}",roomId,userId);
-       webSocketManager.sendCloseRoomPacket(roomId,this.userId);
+       webSocketManager.sendGamerExitPacket(roomId,this.userId);
 	}
 
 	/**

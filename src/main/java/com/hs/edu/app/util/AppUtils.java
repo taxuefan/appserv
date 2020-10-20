@@ -15,6 +15,7 @@ import com.hs.edu.app.wraper.Winner;
 import com.hs.edu.app.wraper.WinnerWraper;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.rmi.CORBA.Util;
 import java.util.*;
 
 /**
@@ -198,7 +199,7 @@ public class AppUtils {
             }
             if(!newGamer.getUserId().equals(userId)){
                 newGamer.setWord("");
-                if(newMsg.getMsgType()!=MsgType.GAMING) {
+                if(newMsg.getMsgType()!=MsgType.GAMING||newMsg.getMsgType()!=MsgType.PLAYER_EXIT_ROOM) {
                     newGamer.setRole(Role.UNKOWN.getCode());
                 }
             }
@@ -206,6 +207,60 @@ public class AppUtils {
         newWraper.setUsers(newUserList);
         newMsg.setData(newWraper);
         return newMsg;
+    }
+    /*
+     * @Author
+     * @Description //获取游戏的日志信息
+     * @Date 0:02 2020/10/20
+     * @Param
+     * @return
+     **/
+    public static   GameLog  wrapperGameLog(String roomId, WinnerWraper winnerWraper) {
+        if(winnerWraper==null){
+            return null;
+        }
+        Room room=RoomCacheManager.getInstance().get(roomId);
+        GameLog gameLog= new GameLog();
+        gameLog.setCreateTime(room.getGame().getCreateTime());
+        gameLog.setDictType(room.getDictType());
+        gameLog.setEndTime(System.currentTimeMillis());
+        gameLog.setHostUserId(room.getHostUserId());
+        gameLog.setSeqNo(room.getGame().getSeqNo());
+        gameLog.setWinnerRole(winnerWraper.getWinner().getRole());
+        gameLog.setRoomId(roomId);
+        return  gameLog;
+    }
+    /**
+     * @Author taxuefan
+     * @Description //TODO 获取游戏日志详细信息
+     * @Date 0:01 2020/10/20
+     * @Param [roomId, winnerWraper]
+     * @return java.util.List<com.hs.edu.app.entity.GameDetailLog>
+     **/
+    public static  List<GameDetailLog> wrapGameDetailLog(String roomId, WinnerWraper winnerWraper) {
+        if(winnerWraper==null){
+            return null;
+        }
+        Room room=RoomCacheManager.getInstance().get(roomId);
+        if(room.getGame()==null){
+            return null;
+        }
+        List<Gamer> gamersList=room.getGame().getGamersList();
+        List<GameDetailLog> gameDetailLogList=new ArrayList<GameDetailLog>();
+        for(Gamer gamer:gamersList){
+            if(StrUtil.isEmpty(gamer.getUserId())){
+                continue;
+            }
+            GameDetailLog gameDetailLog=new GameDetailLog();
+            gameDetailLog.setAvatarUrl(gamer.getAvatarUrl());
+            gameDetailLog.setRole(gamer.getRole());
+            gameDetailLog.setWord(gamer.getWord());
+            gameDetailLog.setNickName(gamer.getNickName());
+            gameDetailLog.setSeqNo(room.getGame().getSeqNo());
+            gameDetailLog.setUserId(gamer.getUserId());
+            gameDetailLogList.add(gameDetailLog);
+        }
+        return  gameDetailLogList;
     }
     public static void main(String[] args){
         Object[] arr = {1,2,3,4,5,6,7,8};
@@ -218,5 +273,8 @@ public class AppUtils {
         for(int i=0;i<arr.length;i++){
             System.out.print(arr[i]+" ");
         }
+        long systime=System.currentTimeMillis();
+        Calendar calendar= DateUtil.calendar(systime);
+        //DateUtil.toLocalDateTime()
     }
 }

@@ -22,6 +22,8 @@ public class Game implements Serializable,Cloneable {
     String wodi;
     Integer status=0;//0初始化状态 1游戏中状态，2游戏结束状态
     String winner;//谁是赢家
+    Long createTime;//创建时间
+
 
 
     /**

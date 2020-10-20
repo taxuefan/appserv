@@ -4,6 +4,8 @@ import com.hs.edu.api.app.dao.DictDao;
 import com.hs.edu.api.app.dao.DictTypeDao;
 import com.hs.edu.api.entity.Result;
 import com.hs.edu.app.entity.Dictionary;
+import com.hs.edu.app.entity.GameDetailLog;
+import com.hs.edu.app.entity.GameLog;
 
 
 import java.util.List;

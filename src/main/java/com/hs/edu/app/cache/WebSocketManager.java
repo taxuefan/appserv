@@ -1,8 +1,13 @@
 package com.hs.edu.app.cache;
 
 import com.alibaba.fastjson.JSONObject;
+import com.hs.edu.app.entity.GameDetailLog;
+import com.hs.edu.app.entity.GameLog;
 import com.hs.edu.app.entity.Gamer;
 import com.hs.edu.app.entity.Room;
+import com.hs.edu.app.service.GameService;
+import com.hs.edu.app.service.IWebSocketManager;
+import com.hs.edu.app.service.impl.GameServiceImpl;
 import com.hs.edu.app.util.AppUtils;
 import com.hs.edu.app.websocket.MsgType;
 import com.hs.edu.app.websocket.SocketMsg;
@@ -26,11 +31,12 @@ import java.util.concurrent.locks.ReentrantLock;
  * @Version 1.0
  **/
 @Slf4j
-public class WebSocketManager {
+public class WebSocketManager implements IWebSocketManager {
     //把websocket对象缓存起来
     private static Map<String,Map<String,WebSocketServer>> webSocketCache= new ConcurrentHashMap<String, Map<String,WebSocketServer>>();
     private ReentrantLock lock=new ReentrantLock();
     RoomCacheManager roomCacheManager =RoomCacheManager.getInstance();
+    GameService gameService=new GameServiceImpl();
     /**
      * @Author taxuefan
      * @Description //TODO 实例化websocket管理器
@@ -38,7 +44,7 @@ public class WebSocketManager {
      * @Param []
      * @return com.hs.edu.app.cache.WebSocketManager
      **/
-    public    static WebSocketManager getInstance() {
+    public   static WebSocketManager getInstance() {
         return  WebSocketManagerFactory.Web_SOCKET_CACHE;
     }
     /**
@@ -230,6 +236,8 @@ public class WebSocketManager {
         msg.setMsgType(MsgType.GAME_OVER);
         WinnerWraper winnerWraper=AppUtils.computeGameResult(roomId);
         lock.lock();
+        GameLog gameLog=AppUtils.wrapperGameLog(roomId,winnerWraper);
+        List<GameDetailLog> gameDetailLogList=AppUtils.wrapGameDetailLog(roomId,winnerWraper);
         if(winnerWraper==null){
             SocketMsg gamingMsg= genGamerPacketData(roomId,MsgType.GAMING);
             this.sendMsgToWebSocket(roomId,MsgType.GAMING,gamingMsg);
@@ -240,7 +248,29 @@ public class WebSocketManager {
           room.finishGame();
         }
         lock.unlock();
+        //主录日志
+        this.logGameLog(gameLog,gameDetailLogList);
     }
+    /**
+     * @Author taxuefan
+     * @Description //用多线程序记录日志
+     * @Date 0:11 2020/10/20
+     * @Param [gameLog, gameDetailLogList]
+     * @return void
+     **/
+     private  void logGameLog(GameLog gameLog,List<GameDetailLog> gameDetailLogList){
+             Thread thread=new Thread(()->{
+                 if(gameLog!=null){
+                     gameService.addGameLog(gameLog);
+                 }
+                 if(gameDetailLogList!=null&&gameDetailLogList.size()>0){
+                     for(GameDetailLog gameDetailLog:gameDetailLogList){
+                         gameService.addGameDetailLog(gameDetailLog);
+                     }
+                 }
+             });
+             thread.start();
+     }
     /**
      * @Author taxuefan
      * @Description //游戏强制强束Servlet
@@ -272,6 +302,7 @@ public class WebSocketManager {
         if(gamer==null){
             return;
         }
+        lock.lock();
         if(!room.isGaming()){
             int gamerPos=room.findGamerPostion(userId);
             gamer=new Gamer();
@@ -284,9 +315,8 @@ public class WebSocketManager {
         if(!isRoomExist(roomId)){
             return;
         }
-        lock.lock();
         this.removeWebsocket(roomId,userId);//从websocket移除数据
-        if(room.isHost(userId)){ //如果是房间退出房间发送关闭房间的消息
+        if(room.isHost(userId)){ //如果是房主退出房间发送关闭房间的消息
             this.sendCloseRoomPacket(roomId,userId);
         }else {
             SocketMsg msg=genGamerPacketData(roomId,MsgType.PLAYER_EXIT_ROOM);

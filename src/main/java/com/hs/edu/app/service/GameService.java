@@ -1,8 +1,12 @@
 package com.hs.edu.app.service;
 
 import com.hs.edu.api.entity.Result;
+import com.hs.edu.app.entity.GameDetailLog;
+import com.hs.edu.app.entity.GameLog;
 import com.hs.edu.app.entity.Gamer;
 import com.hs.edu.app.entity.Room;
+
+import java.util.List;
 
 /**
  * @ClassName GameService
@@ -76,4 +80,22 @@ public interface GameService {
      * @return com.hs.edu.api.entity.Result
      **/
     public Result weedUpGamer(String roomId,String  seqNo,String userId,String playUserId);
+
+
+    /**
+     * @Author taxuefan
+     * @Description //添加游戏日志
+     * @Date 17:27 2020/10/19
+     * @Param [log]
+     * @return com.hs.edu.api.entity.Result
+     **/
+    int addGameLog(GameLog log);
+    /**
+     * @Author taxuefan
+     * @Description //添加详细日志
+     * @Date 17:27 2020/10/19
+     * @Param [log]
+     * @return com.hs.edu.api.entity.Result
+     **/
+    int addGameDetailLog( GameDetailLog log);
 }
